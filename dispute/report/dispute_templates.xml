@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="report_dispute_document">
+    <t t-call="web.external_layout">
+        <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+        <t t-set="address">
+            <div t-field="o.partner_id"
+            t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
+            <p t-if="o.partner_id.vat"><t t-esc="o.company_id.country_id.vat_label or 'Tax ID'"/>: <span t-field="o.partner_id.vat"/></p>
+        </t>
+        <div class="page">
+            <div class="oe_structure"/>
+
+            <h2 t-if="o.state == 'draft'">DRAFT Dispute #<span t-field="o.name"/></h2>
+            <h2 t-if="o.state in ['in_progress', 'done']">Dispute #<span t-field="o.name"/></h2>
+            <h2 t-if="o.state == 'cancel'">Cancelled Dispute #<span t-field="o.name"/></h2>
+
+            <div id="informations" class="row mt32 mb32">
+                <div t-if="o.responsible_id" class="col-3 bm-2">
+                    <strong>Dispute Representative:</strong>
+                    <p t-field="o.responsible_id" class="m-0"/>
+                </div>
+            </div>
+
+            <p t-field="o.summary"/>
+            <table class="table table-sm o_main_table">
+                <thead>
+                    <tr>
+                        <th name="th_produit"><strong>Produit</strong></th>
+                        <th name="th_quantity" class="text-right"><strong>Qty</strong></th>
+                        <th name="th_dispute_price" class="text-right"><strong>Unit Price</strong></th>
+                        <th name="th_reason"><strong>Reason</strong></th>
+                        <th name="th_comment"><strong>Comment</strong></th>
+                        <th name="th_total" class="text-right"><strong>Total</strong></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="o.line_ids" t-as="line">
+                        <tr t-att-class="'bg-200 font-weight-bold o_line_section'">
+                            <td id="product">
+                                <span t-field="line.product_id.name"/>
+                            </td>
+                            <td id="quantity">
+                                <span t-field="line.qty"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-field="line.dispute_price"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-field="line.reason"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-field="line.comment"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-field="line.total"
+                                    t-options='{"widget": "monetary", "display_currency": o.company_currency}'/>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+
+            <div id="total" class="row justify-content-end">
+                <div class="col-4">
+                    <table class="table table-sm">
+                        <tr class="border-black o_total">
+                            <td name="td_amount_total_label"><strong>Total</strong></td>
+                            <td class="text-right">
+                                <span t-field="o.total"
+                                    t-options='{"widget": "monetary", "display_currency": o.company_currency}'/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <p t-field="o.description"/>
+            <div class="oe_structure"/>
+        </div>
+    </t>
+</template>
+
+<template id="report_dispute">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="o">
+            <t t-call="dispute.report_dispute_document" t-lang="o.partner_id.lang"/>
+        </t>
+    </t>
+</template>
+</odoo>

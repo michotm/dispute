@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="dispute_form_view" model="ir.ui.view">
+        <field name="name">dispute.view.form</field>
+        <field name="model">dispute</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <header>
+                    <button name="action_dispute_send" states="in_progress" string="Send Dispute by Email" type="object"/>
+                    <field name="state" widget="statusbar" options="{'clickable': '1'}" />
+                </header>
+                <sheet>
+                    <field name="id" invisible="1"/>
+                    <field name="company_currency" invisible="1"/>
+                    <field name="model_ref_id_model_name" invisible="1"/>
+                    <field name="model_ref_id_selected_id" invisible="1"/>
+                    <group col="4">
+                        <field name="name"/>
+                        <field name="responsible_id"/>
+                        <field name="model_ref_id" widget="reference" />
+                        <field name="dispute_type"/>
+                        <field name="partner_id"/>
+                        <field name="date_planned" widget="date"/>
+                    </group>
+                    <group col="2">
+                        <field name="summary"/>
+                    </group>
+                    <notebook>
+                        <page string="Lines" name="lines">
+                            <group>
+                                <field name="line_ids" nolabel="1" attrs="{'invisible':[('model_ref_id','==',False)]}" context="{'model_ref_id_model_name': model_ref_id_model_name, 'model_ref_id_selected_id': model_ref_id_selected_id,'model_ref_id': model_ref_id, 'dispute_id': id}" />
+                            </group>
+                            <group class="oe_subtotal_footer oe_right">
+                                <div class="oe_subtotal_footer_separator oe_inline">
+                                    <label for="total"/>
+                                </div>
+                                <field name="total" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'company_currency'}"/>
+                            </group>
+                        </page>
+                        <page string="Description" name="description">
+                            <group col="2">
+                                <field name="description" nolabel="1"/>
+                            </group>
+                        </page>
+                        <page string="Related documents">
+                            <group col="2">
+                                <field name="related_document_ids" nolabel="1">
+                                    <tree editable="ontop">
+                                        <field name="model_ref_id" widget="reference" />
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="dispute_tree_view" model="ir.ui.view">
+        <field name="name">dispute.view.tree</field>
+        <field name="model">dispute</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="model_ref_id"/>
+                <field name="responsible_id"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="dispute_kanban_view" model="ir.ui.view" >
+        <field name="name">dispute Kanban View</field>
+        <field name="model">dispute</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column o_opportunity_kanban">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="color"/>
+                <field name="total" widget="monetary"  options="{'currency_field': 'company_currency'}"/>
+                <field name="model_ref_id"/>
+                <field name="partner_id"/>
+                <field name="activity_state"/>
+                <field name="activity_ids"/>
+                <field name="company_currency"/>
+                <progressbar field="activity_state" colors="{&quot;planned&quot;: &quot;success&quot;, &quot;today&quot;: &quot;warning&quot;, &quot;overdue&quot;: &quot;danger&quot;}" sum_field="total" help="This bar allows to filter the dispute based on scheduled activities."/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="#{!selection_mode ? kanban_color(record.color.raw_value) : ''} oe_kanban_global_click">
+                            <div class="o_dropdown_kanban dropdown">
+                                <a class="dropdown-toggle o-no-caret btn" role="button" data-toggle="dropdown" data-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                    <span class="fa fa-ellipsis-v"/>
+                                </a>
+                                <div class="dropdown-menu" role="menu">
+                                    <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">Edit</a></t>
+                                    <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Delete</a></t>
+                                    <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                </div>
+                            </div>  
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_title">
+                                    <strong><field name="name"/> - <field name="partner_id"/></strong>
+                                </div>
+                                <div class="o_kanban_record_subtitle">
+                                    <div>
+                                        <field name="model_ref_id"/>
+                                    </div>
+                                    <div>
+                                        <field name="total" widget="monetary"  options="{'currency_field': 'company_currency'}"/>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_description">
+                                    <field name="summary" />
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="activity_ids" widget="kanban_activity"/>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <field name="responsible_id" widget="many2one_avatar_user"/>
+                                    </div>
+                                </div> 
+                            </div>                   
+                            <div class="oe_clear"/>                           
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="dispute_activity_view" model="ir.ui.view">
+        <field name="name">dispute.view.activity</field>
+        <field name="model">dispute</field>
+        <field name="arch" type="xml">
+            <activity string="dispute">
+                <templates>
+                    <div t-name="activity-box">
+                        <div>
+                            <field name="name" display="full"/>
+                            <field name="partner_id" muted="1" display="full"/>
+                        </div>
+                    </div>
+                </templates>
+            </activity>
+        </field>
+    </record>
+
+    <record id="dispute_search_view" model="ir.ui.view">
+        <field name="name">dispute.view.search</field>
+        <field name="model">dispute</field>
+        <field name="arch" type="xml">
+            <search string="Search Description">
+                <field name="model_ref_id" />
+                <filter string="My disputes" name="my_disputes" domain="[('responsible_id', '=', uid)]"/>
+                <group expand="1" string="Group By">
+                    <filter string="Responsible" name='responsible' context="{'group_by':'responsible_id'}"/>
+                    <filter string="State" name='state' context="{'group_by':'state'}"/>
+                    <filter string="dispute_type" name='type' context="{'group_by':'dispute_type'}"/>
+                </group>           
+            </search>
+        </field>
+    </record>
+
+    <record id="dispute_line_view_tree" model="ir.ui.view">
+        <field name="name">dispute.line.view.tree</field>
+        <field name="model">dispute.line</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="company_currency" invisible="1"/>
+                <field name="model_ref_id" />
+                <field name="product_id"/>
+                <field name="standard_price"/>
+                <field name="reason"/>
+                <field name="comment"/>
+                <field name="dispute_price"/>
+                <field name="qty"/>
+                <field name="total" widget="monetary"  options="{'currency_field': 'company_currency'}"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="dispute_line_view_form" model="ir.ui.view">
+        <field name="name">dispute.line.view.form</field>
+        <field name="model">dispute.line</field>
+        <field name="arch" type="xml">
+            <form>
+                <group col="4">
+                    <field name="model_ref_id"/>
+                    <field name="product_id"/>
+                    <field name="standard_price"/>
+                    <field name="dispute_price"/>
+                    <field name="qty"/>
+                    <field name="reason"/>
+                </group>
+                <group string="Comment">
+                    <field name="comment" nolabel="1"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="dispute_action" model="ir.actions.act_window">
+        <field name="name">Dispute</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">dispute</field>
+        <field name="view_mode">kanban,tree,form,activity</field>
+    </record>
+
+    <menuitem id="dispute_root" name="Disputes" />
+    <menuitem id="dispute" name="Disputes" parent="dispute_root" action="dispute_action" />
+
+</odoo>

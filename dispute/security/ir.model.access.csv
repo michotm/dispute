@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dispute_user_own,dispute_user_own,model_dispute,dispute_group_user_own,1,1,1,1
+access_dispute_line_user_own,dispute_line_user_own,model_dispute_line,dispute_group_user_own,1,1,1,1
+access_dispute_related_document_user_own,dispute_related_document_user_own,model_dispute_related_document,dispute_group_user_own,1,1,1,1

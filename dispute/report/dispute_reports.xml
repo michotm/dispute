@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_report_dispute" model="ir.actions.report">
+            <field name="name">Dispute</field>
+            <field name="model">dispute</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">dispute.report_dispute</field>
+            <field name="report_file">report_dispute</field>
+            <field name="print_report_name">
+                (object.state in ('draft', 'sent') and 'DRAFT Dispute - %s' % (object.name) or
+                'Dispute - %s' % (object.name))</field>
+            <field name="binding_model_id" ref="model_dispute"/>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>

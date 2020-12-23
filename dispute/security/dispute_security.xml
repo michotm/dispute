@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Application -->
+    <record id="dispute_module_category" model="ir.module.category">
+        <field name="name">Dispute</field>
+        <field name="description">Manage disputes.</field>
+    </record>
+    <!-- Access Groups -->
+    <record id="dispute_group_user_own" model="res.groups">
+        <field name="name">User: Own Documents Only</field>
+        <field name="category_id" ref="dispute_module_category"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">the user will have access to his own data in the dispute application.</field>
+    </record>
+    <record id="dispute_group_user_all" model="res.groups">
+        <field name="name">User: All Documents</field>
+        <field name="category_id" ref="dispute_module_category"/>
+        <field name="implied_ids" eval="[(4, ref('dispute_group_user_own'))]"/>
+        <field name="comment">the user will have access to all records of everyone in the dispute application.</field>
+    </record>
+    <record id="dispute_group_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="comment">the user will have an access to the dispute configuration as well as statistic reports.</field>
+        <field name="category_id" ref="dispute_module_category"/>
+        <field name="implied_ids" eval="[(4, ref('dispute_group_user_all'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+    <!-- Record Rules -->
+    <record id="dispute_rule_user_own" model="ir.rule">
+        <field name="name">Personal disputes</field>
+        <field name="model_id" ref="model_dispute"/>
+        <field name="domain_force">['|',('responsible_id','=',user.id),('responsible_id','=',False)]</field>
+        <field name="groups" eval="[(4, ref('dispute_group_user_own'))]"/>
+    </record>
+    <record id="dispute_rule_user_all" model="ir.rule">
+        <field name="name">All disputes</field>
+        <field name="model_id" ref="model_dispute"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4, ref('dispute_group_user_all'))]"/>
+    </record>
+    <!-- Multi-Company Rules -->
+    <record id="dispute_rule_multi_company" model="ir.rule">
+        <field name="name">dispute multi-company</field>
+        <field name="model_id" ref="model_dispute"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]</field>
+    </record>
+    <!-- New users will belong to dispute_group_user_own  -->
+    <record id="base.default_user" model="res.users">
+        <field name="groups_id" eval="[(4, ref('dispute_group_user_own'))]"/>
+    </record>
+</odoo>
